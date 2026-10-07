@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.*
+*.local
+
+# Secrets & keys
+*.pem
+*.key
+*.p12
+*.keystore
+.sui/
+wallet-backup*
+seed*
+mnemonic*
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
