@@ -68,18 +68,21 @@ Each layer is independent. A block at any layer stops the action. Layers are con
 ## Verification highlights
 
 ### Tests
-- **Firewall tests:** 124/124 passing
+- **Firewall tests:** 192/192 passing
 - **WebMCPcss tests:** 652/652 passing
 - **Move contract tests:** 17/17 passing
 
+### External security audit
+- External security audit (DEC-2610): 7/7 in-scope findings remediated
+
 ### Adversarial validation
-- **30 adversarial attacks** executed across 5 categories (direct injection, indirect injection, roleplay, context manipulation, sandbox escape).
+- **34 adversarial attacks** in the suite across 5 categories (direct injection, indirect injection, roleplay, context manipulation, sandbox escape); published run: 30.
 - **3 vulnerabilities found and resolved** before the public release.
 - **Result:** 0 attacks passed all layers in the final run.
 
 ## Red-team results (honest summary)
 
-An independent red-team suite executed 30 adversarial prompt injection attacks against the pipeline. The results, as measured against a calibrated INT4 decision engine on CPU:
+An independent red-team suite of 34 adversarial prompt injection attacks targets the pipeline; the published run below executed 30 of them (the 4 added during the external-audit remediation are blocked by deterministic layers). The results, as measured against a calibrated INT4 decision engine on CPU:
 
 | Outcome | Count | Meaning |
 |---------|-------|---------|
@@ -88,7 +91,7 @@ An independent red-team suite executed 30 adversarial prompt injection attacks a
 | Structural block | 10 | Blocked before the decision engine (skill integrity, credential guard, etc.) |
 | Passed all layers | 0 | No attack succeeded |
 
-**Block rate: 100% (30/30).** No attack passed all layers.
+**Block rate: 100% (30/30) in the published run.** No attack passed all layers.
 
 ### Known limitations (stated honestly)
 

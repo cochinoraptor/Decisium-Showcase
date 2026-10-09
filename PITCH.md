@@ -60,7 +60,7 @@ catalog → decision → payment integration, end to end.
 - ✅ Fraud attempt ("urgent transfer to new wallet, expires in 10 minutes"):
   **blocked** by Laya (`blocked`, risk 75/100).
 - ✅ Limits: exceeding maxPerTx or the daily blocks; daily rollover works on-chain
-  (15/15 Move tests).
+  (17/17 Move tests).
 - ✅ Fail-closed: with Laya down, nothing executes automatically.
 
 ## Roadmap to production
@@ -68,7 +68,7 @@ catalog → decision → payment integration, end to end.
 1. **Q1**: live deploy with real USDC on Testnet, hot-potato receipts in Move,
    persistent queue, session auth.
 2. **Q2**: Laya fine-tuning with partner data (refund, chargeback, providers),
-   multi-agent dashboard, external audit.
+   multi-agent dashboard, external re-audit (DEC-2610 done: 7/7 in-scope findings remediated).
 3. **Q3**: Mainnet with governance multi-sig, SDK for agent operators, wallet
    listing with sponsorship.
 4. **Q4**: interoperable spend policy standard (proposal to ERC-8004 as a payment

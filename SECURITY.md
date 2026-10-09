@@ -9,7 +9,7 @@ The following actors and threats inform the design:
 | Actor | Threat | MVP mitigation | Production pending |
 |-------|--------|---------------|-------------------|
 | Compromised agent / prompt injection | Agent is tricked into paying an attacker | Whitelist + on-chain limits + calibrated model + human approval | On-chain receipt, agent session telemetry |
-| Remote attacker | Abuses the firewall API | Localhost-only binding, body size limit, strict input validation | Signed session token + per-origin CORS |
+| Remote attacker | Abuses the firewall API | Localhost-only binding, bearer-token auth on state-changing endpoints, body size limit, strict input validation | Per-origin CORS + token rotation |
 | Malicious insider (admin) | Abuse admin privileges | By design the human is the ultimate authority | Multi-sig for shared governance |
 | Degraded or down decision engine | Garbage or missing verdict | Fail-closed: error leads to review, never allow | Health check with circuit breaker and alerts |
 | Manipulated model confidence | "Safe" with artificially high confidence | Calibrated confidence + conservative thresholds | Fine-tuning with own dataset + continuous eval |
@@ -35,11 +35,11 @@ The human can revoke spending authority on-chain. Revocation leaves limits at ze
 
 ### Constant-time comparison
 
-Approval tokens are compared in constant time to avoid timing side-channels, when the authenticated endpoint is integrated.
+Approval tokens are compared in constant time to avoid timing side-channels.
 
 ### Hardened local API
 
-The local API binds to localhost, enforces a body size limit, and validates input strictly — addresses, amounts, and strings are all checked before use.
+The local API binds to localhost, authenticates state-changing requests with a bearer token, enforces a body size limit, and validates input strictly — addresses, amounts, and strings are all checked before use.
 
 ### Keys
 
@@ -56,18 +56,35 @@ The MVP reads the local wallet only for deployment scripts. No service listens w
 
 ## Known limitations (MVP)
 
-- **No authentication on the local API** (Testnet, localhost). Any local process can request payments; the human remains the last line via the approval queue.
-- **Whitelist with suffix comparison** to tolerate short addresses. Acceptable in MVP; dangerous in production with mistyped partial addresses. Production: full address normalization.
+- **Local API authentication (DEC-2610-001, remediated).** State-changing endpoints now require a bearer token issued on first startup; the API still binds to localhost (Testnet) and the human remains the last line via the approval queue.
+- **Whitelist comparison hardened (DEC-2610-002, remediated).** Recipients are matched by exact full address and malformed addresses are rejected; suffix comparison is gone.
 - **Queue and budget in memory**, lost on restart. A restart resets the daily budget; the on-chain policy is not reset.
 - **Decision thresholds via environment variable**. A careless operator could relax them. Production: signed and versioned configuration.
 - **No multi-tenancy.** The current design is single-user.
 - **No durable queue.** The approval queue does not survive a restart.
-- **Decision engine not formally audited** against adversarial inputs.
+- **Decision engine not formally verified.** DEC-2610 covered the firewall's deterministic controls; the model itself is exercised only by the red-team suite.
 - **Mainnet not touched.** Verified: testnet RPC, testnet faucet, testnet explorer only.
+
+## External Security Audit — DEC-2610
+
+Decisium was audited externally by **Pentia** (report DEC-2610). The audit found 8 issues: 7 were in scope for the MVP and **all 7 are remediated**, each covered by regression tests (the firewall suite grew from 127 to 192 tests). One finding — on-chain custody — is out of scope for the MVP and is deferred to the next audit cycle alongside the contract work.
+
+| Finding | Status |
+|---------|--------|
+| DEC-2610-001 — API authentication | FIXED |
+| DEC-2610-002 — Recipient whitelist comparison | FIXED |
+| DEC-2610-003 — On-chain custody | OUT OF SCOPE (MVP) |
+| DEC-2610-004 — Input normalization before security checks | FIXED |
+| DEC-2610-005 — Approval queue rate limiting and capacity | FIXED |
+| DEC-2610-006 — Outbound request (SSRF) protections | FIXED |
+| DEC-2610-007 — Concurrent budget enforcement | FIXED |
+| DEC-2610-008 — Payment authorization replay protection | FIXED |
+
+Severities and technical detail are part of the full report, available under NDA.
 
 ## Adversarial testing
 
-A red-team suite executed 30 adversarial prompt injection attacks against the pipeline. The attacks covered 5 categories:
+A red-team suite of 34 adversarial prompt injection attacks targets the pipeline. The published run below executed 30 of them; the 4 payloads added during the DEC-2610 remediation are blocked by deterministic layers (regression-tested). The attacks covered 5 categories:
 
 - Direct injection
 - Indirect injection (in content, metadata, structured data)
@@ -84,7 +101,7 @@ A red-team suite executed 30 adversarial prompt injection attacks against the pi
 | Structural block (before decision engine) | 10 |
 | Passed all layers | 0 |
 
-**Block rate: 100% (30/30).** No attack passed all layers.
+**Block rate: 100% (30/30) in the published run.** No attack passed all layers.
 
 ### Vulnerabilities found and resolved
 
@@ -109,8 +126,8 @@ The suite found 3 structural vulnerabilities before the public release. All thre
 4. **Repeat the adversarial run multiple times** and average before publishing any numbers. Add the payloads the model did not catch to the fine-tuning corpus.
 5. **Add durable persistence** for the queue and budget before any production deployment.
 6. **Add authentication** to the local API before any multi-process or multi-user deployment.
-7. **External audit** before mainnet. The current MVP is not audited.
+7. **Re-audit before mainnet.** The MVP was externally audited (DEC-2610); re-audit after contract changes and before any mainnet deployment.
 
 ## Disclaimer
 
-This document is an honest accounting of a pre-seed MVP. It is not a security audit, not a guarantee, and not a recommendation to deploy as-is. Production security requires a dedicated senior engineer and an external audit.
+This document is an honest accounting of a pre-seed MVP. It is not a security audit, not a guarantee, and not a recommendation to deploy as-is. Production security requires a dedicated senior engineer and continuous auditing; the MVP has been externally audited (DEC-2610) with all in-scope findings remediated.

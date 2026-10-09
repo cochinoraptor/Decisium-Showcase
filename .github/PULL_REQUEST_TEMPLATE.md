@@ -15,7 +15,7 @@
 
 ## Checks
 
-- [ ] `npm test` in `firewall/` passes (124/124)
+- [ ] `npm test` in `firewall/` passes (192/192)
 - [ ] `npm run build` in `firewall/` exits 0
 - [ ] Docs updated where relevant (README, SECURITY_NOTES, DECISIONS, reports)
 - [ ] No attack payloads modified; tests still reproduce the same cases

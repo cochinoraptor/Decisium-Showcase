@@ -45,7 +45,7 @@ cd trust-console && npm install && npm run dev
 
 From `firewall/`:
 
-- `npm test` — vitest suite (must stay green; current status is 124/124).
+- `npm test` — vitest suite (must stay green; current status is 192/192).
 - `npm run build` — strict `tsc` compile (must exit 0).
 - `npx tsc --noEmit` — typecheck without emitting.
 

@@ -4,10 +4,17 @@ Canonical numbers as measured against a calibrated INT4 decision engine on CPU. 
 
 ## Tests
 
-- **Firewall tests:** 124/124 passing
+- **Firewall tests:** 192/192 (127 baseline + 65 security regression tests)
 - **WebMCPcss tests:** 652/652 passing
 - **Move contract tests:** 17/17 passing
-- **Red-team suite:** 30 adversarial attacks executed
+- **Red-team suite:** 34 adversarial attacks (30-attack published run + 4 audit-derived payloads)
+
+## External Security Audit (DEC-2610)
+
+- **Auditor:** Pentia
+- **Findings:** 8 total — 1 Critical, 2 High, 4 Medium, 1 Low. 7 findings in scope for the MVP, 1 (on-chain custody) out of scope.
+- **Status:** 7/7 in-scope remediated, each fix covered by regression tests (firewall suite 127 → 192 tests).
+- Full report under NDA.
 
 ## Latency (real Laya, INT4 CPU)
 
@@ -28,7 +35,9 @@ Canonical numbers as measured against a calibrated INT4 decision engine on CPU. 
 | Process RAM, peak | 548 MB |
 | Target RAM limit | 4 GB |
 
-## Red team (30 attacks)
+## Red team (34-attack suite)
+
+The suite contains 34 attacks. Outcomes below are from the published 30-attack run; the 4 payloads added during the DEC-2610 remediation are blocked by deterministic regression tests.
 
 | Outcome | Count | Meaning |
 |---------|-------|---------|
@@ -37,7 +46,7 @@ Canonical numbers as measured against a calibrated INT4 decision engine on CPU. 
 | Structural block | 10 | Blocked before the decision engine |
 | Passed all layers | 0 | No attack succeeded |
 
-**Block rate: 100% (30/30).** No attack passed all layers.
+**Block rate: 100% (30/30) in the published run.** No attack passed all layers.
 
 ### Confidence distribution (20 evaluated attacks)
 
